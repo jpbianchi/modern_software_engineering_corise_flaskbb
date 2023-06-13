@@ -111,8 +111,20 @@ class TopicForm(FlaskForm):
 # you modify them?
 
 class SpecialTopicForm(TopicForm):
-    # ADD CODE HERE
-    pass
+    
+    def __init__(self, *args, **kwargs):  # *args, **kwargs 
+        TopicForm.__init__(self,*args, **kwargs)  # instantiates a TopicForm class
+        # now we have access to all the class variables and methods
+        # but the title is an instance of the class StringField, which is 
+        # a Field, which has a process_data method that updates the data
+        # variable, ie self.title.data as seen from here
+        self.pattern = "Special Topic "
+        # self.title.process_data(self.pattern.strip() + ': ' + self.title.data)
+        self.title.data = self.pattern.strip() + ': ' + self.title.data
+
+        # for content, TextAreaField is also a subclass of StringField
+        # self.content.process_data(self.pattern.strip() + ': ' + self.content.data)
+        self.content.data = self.pattern.strip() + ': ' + self.content.data
 
 ###################################################################
 
