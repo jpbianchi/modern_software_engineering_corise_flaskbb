@@ -134,7 +134,7 @@ class TestChangeUserDetailsForm(object):
         data = MultiDict(
             dict(
                 submit=True,
-                birthday="25 06 2000",
+                birthday=str(date(2000, 6, 25)),  # <<<< was "25 06 2000"
                 gender="awesome",
                 location="here",
                 website="http://flaskbb.org",
@@ -175,7 +175,7 @@ class TestChangeUserDetailsForm(object):
         # CoRise TODO: fix this this test so that it passes.
         data = dict(
             submit=True,
-            birthday="25 06 2000",
+            birthday="2006-06-25",  # <<<< was "25 06 2000"
             gender="awesome",
             location="here",
             website="http://flaskbb.org",
@@ -198,7 +198,7 @@ class TestChangeUserDetailsForm(object):
     def test_invalid_inputs(self, formdata):
         data = dict(
             submit=True,
-            birthday="25 06 2000",
+            birthday="2006-06-25",  # <<<< was "25 06 2000"
             gender="awesome",
             location="here",
             website="http://flaskbb.org",

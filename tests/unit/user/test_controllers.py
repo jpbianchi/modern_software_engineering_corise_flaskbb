@@ -279,7 +279,7 @@ class TestChangeUserDetailsView(object):
         # CoRise TODO: fix this test so that it passes.
         # Hint: does the format of the data look right to you?
         form = self.produce_form(
-            birthday="25 04 2000",
+            birthday=str(date(2000, 4, 25)),  # <<< WRONG DATE FORMAT, previously "25 04 2000",
             gender="awesome",
             location="here",
             website="http://web.site",
@@ -320,7 +320,7 @@ class TestChangeUserDetailsView(object):
 
     def test_update_user_fails_with_stopvalidation(self, mocker):
         # CoRise TODO: fix this test so that it passes.
-        form = self.produce_form(birthday="25 04 2000")
+        form = self.produce_form(birthday="2000-04-25")  # <<< was "25 04 2000"
         handler = mocker.Mock(spec=ChangeSetHandler)
         handler.apply_changeset.side_effect = StopValidation(
             [("birthday", "I just want you to know that's a great birthday")]
@@ -335,7 +335,7 @@ class TestChangeUserDetailsView(object):
 
     def test_update_user_fails_with_persistence_error(self, mocker):
         # CoRise TODO: fix this this test so that it passes.
-        form = self.produce_form(birthday="25 04 2000")
+        form = self.produce_form(birthday="2000-04-25")  # <<< was "25 04 2000"
         handler = mocker.Mock(spec=ChangeSetHandler)
         handler.apply_changeset.side_effect = PersistenceError("no")
         view = ChangeUserDetails(form=form, details_update_handler=handler)

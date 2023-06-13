@@ -12,8 +12,13 @@ from flaskbb.utils.helpers import (
     slugify,
     time_utcnow,
     topic_is_unread,
+    to_bytes,
+    to_unicode,
+    redirect_url,
 )
 from flaskbb.utils.settings import flaskbb_config
+
+from pytest import raises as pytestraises
 
 ###################################################################
 # CoRise TODO: add unit tests below that test the functionality of:
@@ -24,6 +29,42 @@ from flaskbb.utils.settings import flaskbb_config
 # NOTE: You'll need to import them from flaskbb.utils.helpers
 
 # ADD CODE HERE
+def test_to_bytes():
+    """Test to_bytes function."""
+    text = "Hello, World! 😀"
+    assert to_bytes(text) == b'Hello, World! \xf0\x9f\x98\x80'
+
+    textutf16 = b'\xff\xfeH\x00e\x00l\x00l\x00o\x00,\x00 \x00W\x00o\x00r\x00l\x00d\x00!\x00 \x00=\xd8\x00\xde'    
+    assert to_bytes(text, encoding='utf-16') == textutf16
+    
+    assert to_bytes(b'123') == b'123'
+
+    with pytestraises(LookupError):
+        to_bytes(text, encoding="invalid-encoding")
+
+def test_to_unicode():
+    """Test to_unicode function."""
+    text = "Hello, World! 😀"
+    assert to_unicode(b'Hello, World! \xf0\x9f\x98\x80') == text
+
+    textutf16 = b'\xff\xfeH\x00e\x00l\x00l\x00o\x00,\x00 \x00W\x00o\x00r\x00l\x00d\x00!\x00 \x00=\xd8\x00\xde'
+    assert to_unicode(textutf16, encoding='utf-16') == text
+    
+    assert to_unicode(text) == text
+
+    with pytestraises(LookupError):
+        to_unicode(b'123', encoding="invalid-encoding")
+
+def test_redirect_url_with_no_referrer():
+    """Test function redirect_url."""
+    assert redirect_url('',  use_referrer=False) is None
+    assert redirect_url("http://abc.com", use_referrer=False) is None
+    assert redirect_url("abc", use_referrer=False) == "abc"
+
+def test_redirect_url_with_referrer(application):
+    with application.test_request_context("/redirect"):
+        assert redirect_url("abc",use_referrer=True) == "abc"
+
 
 ###################################################################
 
