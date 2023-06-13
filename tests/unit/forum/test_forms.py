@@ -16,11 +16,9 @@ class TestSpecialTopicForm(object):
         """Tests addition of 'Special Topic' to title and content."""
         formdata = MultiDict({"title": "abc", 
                     "content": "xyz", })
-                    #"track_topic":False}
 
         stf = SpecialTopicForm(formdata=formdata)
         pattern = "Special Topic"
-        N = len(pattern)  
 
         # remember: title is a StringField object
         assert stf.title.data   == pattern + ': abc'

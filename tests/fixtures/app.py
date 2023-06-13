@@ -56,7 +56,10 @@ def database():
 ###################################################################
 # CoRise TODO: add a new fixture `translations` that calls the
 # `compile_translations` function from flaskbb.utils.translations
+from flaskbb.utils.translations import compile_translations
 
-# ADD CODE HERE
+@pytest.fixture()  
+def translations():           
+    compile_translations()
 
 ###################################################################
