@@ -13,9 +13,15 @@ def test_home_page(application, default_settings, default_groups, translations):
     with application.test_client() as client:
         response = client.get('/')
         print('THIS IS RESPONSE.DATA  '*5, '\n'*15,response.data, '\n'*15)  # use pytest -s to see this print
+        # I tried to print response.data to create more tests but pytest -s
+        # would not unblock the prints for some reason
+        # maybe I come back later to this when I run the app and I can see the homepage
 
         assert response.status_code == 200
         assert b"Forum" in response.data
-        # assert False, f"{response.data}" # works but pytest shows a small part
+
+        # I tried with assert False since the error message is displayed but
+        # pytest shows only the beginning of response.data
+        # assert False, f"{response.data}" 
 
 ###################################################################
