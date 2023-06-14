@@ -66,6 +66,7 @@ def test_user_post(live_server, page:Page, forum, default_groups):
     assert success, 'Login failed'
     assert current_user.is_authenticated, f'User is not authenticated'
 
+    # see test_forum_models.py::test_post_save
     text = 'A difficult test'
     topic = Topic(title='test') 
     post = Post(content=text)

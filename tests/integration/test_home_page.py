@@ -6,22 +6,18 @@
 #
 # Hint: you can get the test client by calling `application.test_client()`
 # when using the application test fixture.
+from flaskbb.utils.helpers import to_bytes
 
 def test_home_page(application, default_settings, default_groups, translations):
     # the parameters are the fixtures we need for this test
 
     with application.test_client() as client:
         response = client.get('/')
-        print('THIS IS RESPONSE.DATA  '*5, '\n'*15,response.data, '\n'*15)  # use pytest -s to see this print
-        # I tried to print response.data to create more tests but pytest -s
-        # would not unblock the prints for some reason
-        # maybe I come back later to this when I run the app and I can see the homepage
+        print('THIS IS RESPONSE.DATA  '*5, '\n'*15,response.data, '\n'*15)  
+        # use pytest -s to see this print and disable '--capture  ' in setup.cfg
 
         assert response.status_code == 200
-        assert b"Forum" in response.data
-
-        # I tried with assert False since the error message is displayed but
-        # pytest shows only the beginning of response.data
-        # assert False, f"{response.data}" 
+        assert to_bytes("A lightweight forum software in Flask") in response.data, f"Wrong response data {response.data}"
+        # one can see the homepage at https://forums.flaskbb.org
 
 ###################################################################
