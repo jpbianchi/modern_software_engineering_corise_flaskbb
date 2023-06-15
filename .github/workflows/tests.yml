@@ -57,7 +57,7 @@ jobs:
     - name: Test with pytest
         # Implement test step
         # TODO: ADD CODE HERE
-      run: pytest --cov=flaskbb  # Run pytest with coverage report
+      run: pytest --cov=./  # Run pytest with coverage report
         
     - name: Upload coverage
         # Implement coverage step
