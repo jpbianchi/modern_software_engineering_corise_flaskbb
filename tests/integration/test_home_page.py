@@ -13,7 +13,7 @@ def test_home_page(application, default_settings, default_groups, translations):
 
     with application.test_client() as client:
         response = client.get('/')
-        print('THIS IS RESPONSE.DATA  '*5, '\n'*15,response.data, '\n'*15)  
+        # print('THIS IS RESPONSE.DATA  \n',response.data)  
         # use pytest -s to see this print and disable '--capture  ' in setup.cfg
 
         assert response.status_code == 200

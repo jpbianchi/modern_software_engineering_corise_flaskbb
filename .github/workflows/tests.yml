@@ -48,7 +48,7 @@ jobs:
     - name: Install dependencies
         # Install all the dependencies  # "very similar to what we find in devcontainer.json" 
         # TODO: ADD CODE HERE
-        run: pip install -r requirements-dev.txt
+      run: pip install -r requirements-dev.txt
 
     - name: Prepare FlaskBB
       run: |
