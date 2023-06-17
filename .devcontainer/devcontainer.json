@@ -48,7 +48,9 @@
 				"github.vscode-github-actions"
 			]
 		}
-	}
+	},
+	// added for the tool 'act' which creates a container
+	"runArgs": ["--volume=/var/lib/docker", "--privileged"]
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"

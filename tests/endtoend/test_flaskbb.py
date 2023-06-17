@@ -73,15 +73,23 @@ def test_user_post(live_server, page:Page, forum, default_groups):
     # post.save(topic=topic, user=user)
     topic.save(forum=forum, user=JPuser, post=post)  # let's use the forum fixture
 
+    # otherwise use this code to create a forum
+    #with database.session.no_autoflush:
+    #        forum = Forum(title="forum name", category=category)
+    #        forum.groups = Group.query.filter(Group.guest == False).all()
+    #        forum.save()
+
     # let's read the post using the user
     assert JPuser.last_post.content == text, f'Wrong post content {post.content} instead of {text}'
     assert JPuser.last_post == post
     assert JPuser.post_count == 1
+    assert Topic.get_topic(JPuser.last_post.topic_id, JPuser).forum_id == forum.id
 
     assert topic.last_post == post
     assert topic.user.post_count == 1
     assert topic.post_count == 1
     assert topic.forum.post_count == 1
+
 
 
 
