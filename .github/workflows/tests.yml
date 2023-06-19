@@ -14,7 +14,18 @@ on:
       - '**/CHANGES'
       - '**/AUTHORS'
       - '**/LICENSE'
-  # CoRise TODO: modify this workflow to run on each pull request
+
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'flaskbb/themes/**'
+      - '**.md'
+      - '**.rst'
+      - '**/CHANGES'
+      - '**/AUTHORS'
+      - '**/LICENSE'
 
 jobs:
   build:
@@ -55,7 +66,10 @@ jobs:
       run: |
         flaskbb translations compile
     
-    # CoRise TODO: add another job to the workflow that will run flake8 and report any errors that were introduced in the proposed change
+    # CoRise TODO: add another job to the workflow that will run flake8 
+    # and r eport any errors that were introduced in the proposed change
+    - name: Flake8 tests 
+      run: flake8 --select=E9,F63,F7,F82 --exit-zero --statistics .
         
     - name: Test with pytest
       run: |
