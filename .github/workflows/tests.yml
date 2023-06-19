@@ -4,8 +4,9 @@
 name: test
 
 on:
-  push:  # every time there is a push to main, ignore these files
-    branches: [ week1 ]
+  push:  
+    # branches: [ week1 ]
+    # every time there is a push to these branches, ignore these files
     paths-ignore:
       - 'docs/**'
       - 'flaskbb/themes/**'
@@ -46,12 +47,10 @@ jobs:
         key: pip|${{ runner.os }}|${{ matrix.python-version }}|${{ hashFiles('requirements*.txt') }}
 
     - name: Install dependencies
-        # Install all the dependencies  # "very similar to what we find in devcontainer.json" 
-        # TODO: ADD CODE HERE
       run: |
         python -m pip install --upgrade pip
-        pip install wheel
         pip install -r requirements-dev.txt
+        pip install playwright --upgrade
         playwright install
         playwright install-deps
 
@@ -60,17 +59,14 @@ jobs:
         flaskbb translations compile
         
     - name: Pytests
-        # Implement test step
-        # TODO: ADD CODE HERE
       run: pytest --cov=./  --cov-report=html # Run pytest with coverage report
         
     - name: Upload coverage
-        # Implement coverage step
-        # TODO: ADD CODE HERE
       # https://github.com/actions/upload-artifact
       uses: actions/upload-artifact@v3
       with:
         name: code coverage report
-        path: tests  # didn't know where to drop this file 
+        #uses: codecov/codecov-action@v
+        path: tests/  # didn't know where to drop this file 
       
 ###################################################################

@@ -8,17 +8,13 @@ from playwright.sync_api import Page
 from flaskbb import create_app
 from flaskbb.configs.testing import TestingConfig as Config
 from flaskbb.extensions import db
-from flaskbb.utils.populate import create_default_groups, create_default_settings
+from flaskbb.utils.populate import create_default_groups, create_default_settings, create_user, create_welcome_forum
 
 from flaskbb.utils.translations import compile_translations
 from flask import url_for
 
 @pytest.fixture(scope='session')   # <<< I had to specify the scope to pass test
 def app():
-    # Hint: create the app, and setup any default context like translations,
-    # settings, DB, etc.
-    # Hint: take a look at the tests/fixtures/app.py file for the details of 
-    # how to configure the application.
 
     app = create_app(Config)
 
@@ -31,6 +27,11 @@ def app():
         create_default_groups()
         create_default_settings()
         compile_translations()
+
+        # The application and the test run in two different processes
+        # so creating the user in the test or fixture doesn't add it to the same DB instance
+        create_user("test", "test", "test@example.org", "member")
+        create_welcome_forum()
 
     return app
 
@@ -51,8 +52,9 @@ from flaskbb.user.models import User
 from flaskbb.forum.models import Category, Forum, Topic, Post
 
 def test_user_post(live_server, page:Page, forum, default_groups):
-    # inspired from models.py and fixtures in user.py, forum.py
-    # maybe I was supposed to create a user and a post by interacting with the page?
+    """ I first did the bonus by using flaskbb API which
+        is not what we were supposed to do
+    """
 
     # I could have used the fixture user, which creates a standard user
     user = User(username="JP", 
@@ -89,6 +91,32 @@ def test_user_post(live_server, page:Page, forum, default_groups):
     assert topic.user.post_count == 1
     assert topic.post_count == 1
     assert topic.forum.post_count == 1
+
+def test_create_post(live_server, page: Page):
+    """ Here we use playwright only to simulate a user using the UI
+        Thanks to Chris Bloom
+    """
+    url = url_for('auth.login', _external=True)
+    page.goto(url)
+    assert "Login" in page.title()
+
+    page.get_by_label("Username or Email address").fill("test")
+    page.get_by_label("Password").fill("test")
+    page.get_by_role("button", name="Login").click()
+    assert not "Wrong username or password" in page.content()
+
+    page.screenshot(path="welcome.jpeg")
+    page.get_by_role("link", name="Welcome", exact=True).click()
+    assert "Welcome" in page.title()
+
+    page.screenshot(path="new_topic.jpeg")
+    page.get_by_role("link", name="New Topic").click()
+    assert "New Topic" in page.title()
+
+    page.get_by_label("Topic title").fill("My Topic")
+    page.get_by_label("Content").fill("Hi!")
+    page.get_by_role("button", name="Post Topic").click()
+    assert "My Topic" in page.title()
 
 
 
