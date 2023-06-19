@@ -21,7 +21,10 @@ sudo service docker status
 
 # then run
 
-sudo ./bin/act  > act.log
+# option --artifact-server-path avoids error at the end
+#    "Unable to get ACTIONS_RUNTIME_TOKEN env variable"
+sudo ./bin/act  --artifact-server-path /tmp/artifacts > act.log  # <<< WORKS
+# sudo ./bin/act  --env ACTIONS_RUNTIME_TOKEN=foo > act2.log  # doesn't work, gives same error
 # then open act.log and watch the workflow in real time
 
 
