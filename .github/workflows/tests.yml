@@ -16,6 +16,8 @@ on:
       - '**/LICENSE'
 
   # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
+  # unlike when we push a change, we do not 'pull request' a change, that's not what it means
+  # this option runs the workflow when ACTIVITY on a pull request in the workflow's repository occurs
   pull_request:
     branches: [ main ]
     paths-ignore:
@@ -33,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.10]
+        python-version: ["3.10"]
 
     steps:
     - uses: actions/checkout@v2
