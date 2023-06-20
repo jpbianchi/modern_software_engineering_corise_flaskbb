@@ -19,6 +19,7 @@ on:
   # unlike when we push a change, we do not 'pull request' a change, that's not what it means
   # this option runs the workflow when ACTIVITY on a pull request in the workflow's repository occurs
   # so if there is a pull request from this branch to main, every push to it will trigger the workflow
+  # UNLESS the pull request has a merge conflict. The merge conflict must be resolved first.
   pull_request:
     branches: [ main ]
     paths-ignore:
