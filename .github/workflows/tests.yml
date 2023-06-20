@@ -18,6 +18,7 @@ on:
   # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
   # unlike when we push a change, we do not 'pull request' a change, that's not what it means
   # this option runs the workflow when ACTIVITY on a pull request in the workflow's repository occurs
+  # so if there is a pull request from this branch to main, every push to it will trigger the workflow
   pull_request:
     branches: [ main ]
     paths-ignore:
@@ -61,8 +62,9 @@ jobs:
         pip install wheel
         pip install -r requirements-dev.txt
         pip install -e .
-        playwrite install
-        playwrite install-deps
+        pip install playwright --upgrade
+        playwright install
+        playwright install-deps
 
     - name: Prepare FlaskBB
       run: |
