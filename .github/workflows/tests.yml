@@ -5,7 +5,7 @@ name: test
 
 on:
   push:  
-    # branches: [ week1 ]
+    branches: [ week1 ]
     # every time there is a push to these branches, ignore these files
     paths-ignore:
       - 'docs/**'
