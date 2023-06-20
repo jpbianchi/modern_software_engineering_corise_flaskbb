@@ -62,6 +62,7 @@ jobs:
       # beware there's a [coverage:html] section in setup.cfg that defines a folder
       run: pytest --cov=./  --cov-report=html:tests/htmlcov2  # Run pytest with coverage report
 
+    # https://github.com/actions/upload-artifact#where-does-the-upload-go
     # For more detailed logs during the artifact upload process, enable step-debugging:
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging#enabling-step-debug-logging
     - name: Upload coverage
