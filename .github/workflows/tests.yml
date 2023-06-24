@@ -74,14 +74,19 @@ jobs:
     # CoRise TODO: add another job to the workflow that will run flake8 
     # and r eport any errors that were introduced in the proposed change
     - name: Flake8 tests 
-      run: flake8 --select=E9,F63,F7,F82 --exit-zero --statistics .
-        
-    - name: Test with pytest
-      run: |
-        pytest --cov=./ --cov-report=html
-        
-    - name: Upload code coverage results
+      run: flake8 --select=E9,F63,F7,F82 --exit-zero --statistics flaskbb/
+    
+    - name: Pytests
+      # beware there's a [coverage:html] section in setup.cfg that defines a folder
+      run: pytest --cov=./  --cov-report=html:tests/htmlcov2  # Run pytest with coverage report
+
+    # https://github.com/actions/upload-artifact#where-does-the-upload-go
+    # For more detailed logs during the artifact upload process, enable step-debugging:
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging#enabling-step-debug-logging
+    - name: Upload coverage
+      # https://github.com/actions/upload-artifact
       uses: actions/upload-artifact@v3
       with:
         name: code coverage report
-        path: tests/htmlcov/
+        path: tests/htmlcov2
+

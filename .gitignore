@@ -1,3 +1,7 @@
+flaskbb/forum/views_*
+flaskbb/forum/topic_manager_*
+dummy*
+
 # Created by https://www.gitignore.io/api/vim,python
 
 ### Python ###

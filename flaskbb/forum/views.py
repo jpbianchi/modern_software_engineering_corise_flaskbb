@@ -42,6 +42,8 @@ from flaskbb.utils.settings import flaskbb_config
 from .locals import current_category, current_forum, current_topic
 from .utils import force_login_if_needed
 
+from flaskbb.forum.topic_manager import TopicManager
+
 impl = HookimplMarker("flaskbb")
 
 logger = logging.getLogger(__name__)
@@ -380,7 +382,8 @@ class ManageForum(MethodView):
         )
 
     # TODO(anr): Clean this up. @_@
-    # CoRise TODO: refactor this method by extracting a class called TopicManager which contains the logic of this method.
+    # CoRise TODO: refactor this method by extracting a class called TopicManager
+    # which contains the logic of this method.
     def post(self, forum_id, slug=None):  # noqa: C901
         forum_instance, __ = Forum.get_forum(
             forum_id=forum_id, user=real(current_user)
@@ -394,68 +397,38 @@ class ManageForum(MethodView):
         ids = request.form.getlist("rowid")
         tmp_topics = Topic.query.filter(Topic.id.in_(ids)).all()
 
-        if not len(tmp_topics) > 0:
+        if not Permission(IsAtleastModeratorInForum(forum=forum_instance)):
+            flash(
+                _("You do not have the permissions to execute this action."),
+                "danger",
+            )
+            return False
+
+        if len(tmp_topics) == 0:
             flash(
                 _(
                     "In order to perform this action you have to select at "
                     "least one topic."
                 ), "danger"
             )
-            return redirect(mod_forum_url)
 
         # locking/unlocking
         if "lock" in request.form:
-            changed = do_topic_action(
-                topics=tmp_topics,
-                user=real(current_user),
-                action="locked",
-                reverse=False
-            )
-
-            flash(_("%(count)s topics locked.", count=changed), "success")
-            return redirect(mod_forum_url)
+            TopicManager().lock(topics=tmp_topics, msg="topics locked")
 
         elif "unlock" in request.form:
-            changed = do_topic_action(
-                topics=tmp_topics,
-                user=real(current_user),
-                action="locked",
-                reverse=True
-            )
-            flash(_("%(count)s topics unlocked.", count=changed), "success")
-            return redirect(mod_forum_url)
+            TopicManager().unlock(topics=tmp_topics, msg="topics unlocked")
 
         # highlighting/trivializing
         elif "highlight" in request.form:
-            changed = do_topic_action(
-                topics=tmp_topics,
-                user=real(current_user),
-                action="important",
-                reverse=False
-            )
-            flash(_("%(count)s topics highlighted.", count=changed), "success")
-            return redirect(mod_forum_url)
+            TopicManager().highlight(topics=tmp_topics, msg="topics highlighted")
 
         elif "trivialize" in request.form:
-            changed = do_topic_action(
-                topics=tmp_topics,
-                user=real(current_user),
-                action="important",
-                reverse=True
-            )
-            flash(_("%(count)s topics trivialized.", count=changed), "success")
-            return redirect(mod_forum_url)
+            TopicManager().trivialize(topics=tmp_topics, msg="topics trivialized")
 
         # deleting
         elif "delete" in request.form:
-            changed = do_topic_action(
-                topics=tmp_topics,
-                user=real(current_user),
-                action="delete",
-                reverse=False
-            )
-            flash(_("%(count)s topics deleted.", count=changed), "success")
-            return redirect(mod_forum_url)
+            TopicManager().delete(topics=tmp_topics, msg="topics deleted")
 
         # moving
         elif "move" in request.form:
@@ -463,7 +436,6 @@ class ManageForum(MethodView):
 
             if not new_forum_id:
                 flash(_("Please choose a new forum for the topics."), "info")
-                return redirect(mod_forum_url)
 
             new_forum = Forum.query.filter_by(id=new_forum_id).first_or_404()
             # check the permission in the current forum and in the new forum
@@ -475,39 +447,23 @@ class ManageForum(MethodView):
                     _("You do not have the permissions to move this topic."),
                     "danger"
                 )
-                return redirect(mod_forum_url)
 
             if new_forum.move_topics_to(tmp_topics):
                 flash(_("Topics moved."), "success")
             else:
                 flash(_("Failed to move topics."), "danger")
 
-            return redirect(mod_forum_url)
-
         # hiding/unhiding
         elif "hide" in request.form:
-            changed = do_topic_action(
-                topics=tmp_topics,
-                user=real(current_user),
-                action="hide",
-                reverse=False
-            )
-            flash(_("%(count)s topics hidden.", count=changed), "success")
-            return redirect(mod_forum_url)
+            TopicManager().hide(topics=tmp_topics, user=real(current_user), msg="topics hidden")
 
         elif "unhide" in request.form:
-            changed = do_topic_action(
-                topics=tmp_topics,
-                user=real(current_user),
-                action="unhide",
-                reverse=False
-            )
-            flash(_("%(count)s topics unhidden.", count=changed), "success")
-            return redirect(mod_forum_url)
+            TopicManager().unhide(topics=tmp_topics, msg="topics unhidden")
 
         else:
             flash(_("Unknown action requested"), "danger")
-            return redirect(mod_forum_url)
+
+        return redirect(mod_forum_url)
 
 
 class NewPost(MethodView):
