@@ -40,6 +40,7 @@ from flaskbb.utils.requirements import (CanBanUser, CanEditUser, IsAdmin,
                                         IsAtleastModerator,
                                         IsAtleastSuperModerator)
 from flaskbb.utils.settings import flaskbb_config
+from flaskbb.fixtures.groups import default_group_ids
 
 impl = HookimplMarker('flaskbb')
 
@@ -665,8 +666,7 @@ class DeleteGroup(MethodView):
                     status=404
                 )
 
-            # TODO: Get rid of magic numbers
-            if not (set(ids) & set(["1", "2", "3", "4", "5", "6"])):
+            if not (set(ids) & default_group_ids()):
                 data = []
                 for group in Group.query.filter(Group.id.in_(ids)).all():
                     group.delete()
@@ -694,7 +694,7 @@ class DeleteGroup(MethodView):
             )
 
         if group_id is not None:
-            if group_id <= 6:  # there are 6 standard groups
+            if group_id in default_group_ids():  # there are 6 standard groups
                 flash(
                     _(
                         "You cannot delete the standard groups. "

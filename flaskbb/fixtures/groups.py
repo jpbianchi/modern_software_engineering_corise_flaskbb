@@ -14,6 +14,7 @@ from collections import OrderedDict
 
 fixture = OrderedDict((
     ('Administrator', {
+            'id': 1,
         'description': 'The Administrator Group',
         'admin': True,
         'super_mod': False,
@@ -31,6 +32,7 @@ fixture = OrderedDict((
         'makehidden': True,
     }),
     ('Super Moderator', {
+            'id': 2,
         'description': 'The Super Moderator Group',
         'admin': False,
         'super_mod': True,
@@ -48,6 +50,7 @@ fixture = OrderedDict((
         'makehidden': True,
     }),
     ('Moderator', {
+            'id': 3,
         'description': 'The Moderator Group',
         'admin': False,
         'super_mod': False,
@@ -65,6 +68,7 @@ fixture = OrderedDict((
         'makehidden': False,
     }),
     ('Member', {
+            'id': 4,
         'description': 'The Member Group',
         'admin': False,
         'super_mod': False,
@@ -82,6 +86,7 @@ fixture = OrderedDict((
         'makehidden': False,
     }),
     ('Banned', {
+            'id': 5,
         'description': 'The Banned Group',
         'admin': False,
         'super_mod': False,
@@ -99,6 +104,7 @@ fixture = OrderedDict((
         'makehidden': False,
     }),
     ('Guest', {
+            'id': 6,
         'description': 'The Guest Group',
         'admin': False,
         'super_mod': False,
@@ -116,3 +122,9 @@ fixture = OrderedDict((
         'makehidden': False
     })
 ))
+
+def default_group_ids():
+    ids = []
+    for key, value in fixture.items():
+        ids.append(getattr(value,'id'))
+    return set(ids)
