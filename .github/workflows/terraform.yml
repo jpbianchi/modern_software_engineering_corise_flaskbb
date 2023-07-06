@@ -15,7 +15,8 @@ on:
             - '.github/workflows/terraform.yaml'
 jobs:
   format:
-
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     name: Format
@@ -29,7 +30,22 @@ jobs:
       # Download & set up the terraform CLI.
       - name: Set up terraform CLI
         uses: hashicorp/setup-terraform@v1
-        # CoRise TODO: run the format command fail the build or on pull-requests update the PR with formatted data
+      
+      - run: terraform fmt -check
+        working-directory: ./terraform
+        id: fmt
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+      
+      - name: update pr
+        if: ${{ steps.fmt.outcome == 'failure' && github.event_name == 'pull_request' }}
+        run: |
+          terraform fmt
+          git config --global user.name "terraform-fmt"
+          git config --global user.email "noreply@corise.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git commit -am "fixup: terraform fmt"
+          git push
+        working-directory: ./terraform
   terraform:
 
     runs-on: ubuntu-latest
@@ -49,19 +65,27 @@ jobs:
         working-directory: ./terraform
         id: init
         run: terraform init -input=false
-      # CoRise TODO: Validate the terraform plan (if on a PR branch).
       - name: terraform validate
         working-directory: ./terraform
-      # CoRise TODO: Prepare the terraform plan (if on a PR branch).
+        if: ${{ github.event_name == 'pull_request' }}
+        run: terraform validate -no-color
       - name: terraform plan
         working-directory: ./terraform
-      # CoRise TODO: Fail the job if the plan failed
+        id: plan
+        if: ${{ github.event_name == 'pull_request' }}
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
       - name: pass or fail
         uses: actions/github-script@v6
-      # CoRise TODO: Apply the generated plan (after merging).
+        if: ${{ steps.plan.outcome == 'failure' }}
+        with:
+          script: |
+            core.setFailed('Plan failed!')
       - name: terraform apply
         id: apply
         working-directory: ./terraform
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: terraform apply -auto-approve -input=false
 
 
 
