@@ -1,0 +1,99 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: test
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'flaskbb/themes/**'
+      - '**.md'
+      - '**.rst'
+      - '**/CHANGES'
+      - '**/AUTHORS'
+      - '**/LICENSE'
+      - 'terraform/**'
+      - .github/workflows/terraform.yml
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'flaskbb/themes/**'
+      - '**.md'
+      - '**.rst'
+      - '**/CHANGES'
+      - '**/AUTHORS'
+      - '**/LICENSE'
+      - 'terraform/**'
+      - .github/workflows/terraform.yml
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Get pip cache dir
+      id: pip-cache
+      run: echo "::set-output name=dir::$(pip cache dir)"
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.pip-cache.outputs.dir }}
+        key: pip|${{ runner.os }}|${{ matrix.python-version }}|${{ hashFiles('requirements*.txt') }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel
+        pip install -r requirements-dev.txt
+        pip install -e .
+        playwright install
+        playwright install-deps
+
+    - name: Prepare FlaskBB
+      run: |
+        flaskbb translations compile
+    
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings.
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+    - name: Test with pytest
+      run: |
+        pytest --cov=./ --cov-report=html
+        
+    - name: Upload code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: code coverage report
+        path: tests/htmlcov/
+
+    - name: Build binary distribution and upload to artifactory
+        # CoRise TODO: implement a conditional step to build the distribution and upload the artifact on push to main
+        # use the zip command from deploy.sh for inspiration
+      run: |
+        zip -r "flaskbb_deploy-${{ github.sha }}.zip" ./flaskbb ./.ebextensions wsgi.py setup.py setup.cfg requirements.txt flaskbb.cfg celery_worker.py
+    
+        - name: Upload application artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: "${{ env.FLASKBB_APPLICATION_ARTIFACT_NAME }}"
+        path: "flaskbb_deploy-${{ github.sha }}.zip"
+       

@@ -12,13 +12,23 @@
 	},
 
 	"features": {
-		"ghcr.io/devcontainers-contrib/features/coverage-py:2": {}
+		"ghcr.io/devcontainers-contrib/features/coverage-py:2": {},
+		"ghcr.io/devcontainers/features/terraform": {
+			"version": "latest",
+			"tflint": "0.46.1"
+		},
+		"ghcr.io/devcontainers/features/github-cli": "latest"
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "/home/vscode/venv/bin/pip --disable-pip-version-check --no-cache-dir install -r requirements-dev.txt && /home/vscode/venv/bin/playwright install && /home/vscode/venv/bin/playwright install-deps",
+
+	"runArgs": ["--volume=/var/lib/docker", "--privileged"],
+
+	// start docker
+	"postStartCommand": "sudo service docker start",
 
 	// Configure tool-specific properties.
 	"customizations": {

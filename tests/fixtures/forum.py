@@ -47,6 +47,14 @@ def topic_moderator(forum, moderator_user):
     post = Post(content="Test Content Moderator")
     return topic.save(forum=forum, user=moderator_user, post=post)
 
+@pytest.fixture
+def topic_important(forum, user):
+    """An important topic"""
+    topic = Topic(title="Test Topic Important")
+    topic.important = True
+    post = Post(content="Test Content Important")
+    return topic.save(forum=forum, user=user, post=post)
+
 
 @pytest.fixture
 def topic_locked(forum, user):
@@ -55,6 +63,15 @@ def topic_locked(forum, user):
     topic.locked = True
     post = Post(content="Test Content Locked")
     return topic.save(forum=forum, user=user, post=post)
+
+@pytest.fixture
+def topic_hidden(forum, user):
+    """A topic hidden by a normal user"""
+    topic = Topic(title="Test Topic Locked")
+    post = Post(content="Test Content Locked")
+    topic = topic.save(forum=forum, user=user, post=post)
+    topic.hide(user)
+    return topic.save()
 
 
 @pytest.fixture
